@@ -1086,32 +1086,40 @@ function gatherData() {
 async function generateForms() {
   const data = gatherData();
 
-  const response = await fetch('/generate', {
-    method: 'POST',
-    body: new URLSearchParams(data)  // ✅ use form-style (like before)
-  });
+  // ✅ VALIDATION (NOW INSIDE FUNCTION)
+  const required = [
+    'vehicle_year','vehicle_make','vehicle_model','vin',
+    'buyer_name','buyer_address','buyer_city','buyer_zip','buyer_county',
+    'seller_name','seller_address','seller_city'
+  ];
 
-  const result = await response.json();
+  const missing = required.filter(k => !data[k]);
 
-  if (result.success) {
-    result.files.forEach(file => {
-      window.open(`/download/${file}`, '_blank');
+  if (missing.length) {
+    showAlert('error', 'Missing: ' + missing.join(', '));
+    return;
+  }
+
+  try {
+    const response = await fetch('/generate', {
+      method: 'POST',
+      body: new URLSearchParams(data)
     });
-  } else {
-    alert("Error: " + (result.error || "Unknown error"));
+
+    const result = await response.json();
+
+    if (result.success) {
+      result.files.forEach(file => {
+        window.open(`/download/${file}`, '_blank');
+      });
+    } else {
+      alert("Error: " + (result.error || "Unknown error"));
+    }
+
+  } catch (err) {
+    alert("Error: " + err.message);
   }
 }
-  // Validation
-  const required = ['vehicle_year', 'vehicle_make', 'vehicle_model', 'vin', 'buyer_name', 'buyer_address', 'buyer_city', 'buyer_zip', 'buyer_county', 'seller_name', 'seller_address', 'seller_city'];
-  const missing = required.filter(k => !data[k]);
-  if (missing.length) {
-    showAlert('error', 'Please fill in all required fields before generating. Missing: ' + missing.join(', '));
-    return;
-  }
-  if (!data.transaction_date) {
-    showAlert('error', 'Please enter the transaction date.');
-    return;
-  }
 
   document.getElementById('generateBtn').disabled = true;
   document.getElementById('generateBtn').textContent = 'Generating…';
