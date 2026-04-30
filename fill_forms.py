@@ -417,19 +417,24 @@ TAX_RATES = {
 }
 
 # Get county
-county = data.get("county", "DEFAULT").strip().title()
 
-# Handle aliases
-aliases = {
-    "Manhattan": "New York",
-    "Brooklyn": "Kings",
-    "Staten Island": "Richmond"
-}
 
-county = aliases.get(county, county)
+def fill_all_forms(data):
+    form_fields = []   #
 
-# Get correct tax rate
-tax_rate = TAX_RATES.get(county, TAX_RATES["DEFAULT"])
+    county = data.get("county", "DEFAULT").strip().title()
+
+    aliases = {
+        "Manhattan": "New York",
+        "Brooklyn": "Kings",
+        "Staten Island": "Richmond"
+    }
+
+    county = aliases.get(county, county)
+
+    tax_rate = TAX_RATES.get(county, TAX_RATES["DEFAULT"])
+
+    # then your form_fields.append(...) stuff
 
 # Write to PDF
 form_fields.append({
