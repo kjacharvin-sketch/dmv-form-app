@@ -448,7 +448,7 @@ def fill_all_forms(data):
 
     # Section 6 if needed
     if data.get("section6_needed", False):
-    cash = data.get("sale_price", "")
+        cash = data.get("sale_price", "")
 
     form_fields.append({
         "page_number": 2,
