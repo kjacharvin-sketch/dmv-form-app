@@ -441,31 +441,38 @@ form_fields.append({
     "entry_text": {"text": f"{tax_rate * 100:.3f}%", "font_size": 9}
 })
 
-    # Section 6 if needed
-    if data.get("section6_needed", False):
-        cash = data.get("sale_price", "")
-        form_fields.append({
-            "page_number": 2, "description": "Section 6 cash payment",
-            "field_label": "6",
-            "label_bounding_box": [27, 475, 450, 485],
-            "entry_bounding_box": [520, 475, 590, 486],
-            "entry_text": {"text": cash, "font_size": 9}
-        })
-        form_fields.append({
-            "page_number": 2, "description": "Section 6 total selling price",
-            "field_label": "7d",
-            "label_bounding_box": [27, 575, 450, 585],
-            "entry_bounding_box": [520, 575, 590, 586],
-            "entry_text": {"text": cash, "font_size": 9}
-        })
-        seller_name_print = data.get("seller_name", "")
-        form_fields.append({
-            "page_number": 2, "description": "Seller/donor printed name",
-            "field_label": "Seller name",
-            "label_bounding_box": [300, 655, 500, 665],
-            "entry_bounding_box": [300, 665, 500, 676],
-            "entry_text": {"text": seller_name_print, "font_size": 9}
-        })
+# Section 6 if needed
+if data.get("section6_needed", False):
+    cash = data.get("sale_price", "")
+
+    form_fields.append({
+        "page_number": 2,
+        "description": "Section 6 cash payment",
+        "field_label": "6",
+        "label_bounding_box": [27, 475, 450, 485],
+        "entry_bounding_box": [520, 475, 590, 486],
+        "entry_text": {"text": cash, "font_size": 9}
+    })
+
+    form_fields.append({
+        "page_number": 2,
+        "description": "Section 6 total selling price",
+        "field_label": "7d",
+        "label_bounding_box": [27, 575, 450, 585],
+        "entry_bounding_box": [520, 575, 590, 586],
+        "entry_text": {"text": cash, "font_size": 9}
+    })
+
+    seller_name_print = data.get("seller_name", "")
+
+    form_fields.append({
+        "page_number": 2,
+        "description": "Seller/donor printed name",
+        "field_label": "Seller name",
+        "label_bounding_box": [300, 655, 500, 665],
+        "entry_bounding_box": [300, 665, 500, 676],
+        "entry_text": {"text": seller_name_print, "font_size": 9}
+    })
 
     fields_doc = {
         "pages": [
