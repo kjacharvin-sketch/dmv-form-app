@@ -1085,7 +1085,7 @@ async function generateForms() {
   const data = gatherData();
 
   // Validation
-  const required = ['vehicle_year', 'vehicle_make', 'vehicle_model', 'vin', 'buyer_name', 'buyer_ssn', 'buyer_address', 'buyer_city', 'buyer_zip', 'buyer_county', 'seller_name', 'seller_address', 'seller_city'];
+  const required = ['vehicle_year', 'vehicle_make', 'vehicle_model', 'vin', 'buyer_name', 'buyer_address', 'buyer_city', 'buyer_zip', 'buyer_county', 'seller_name', 'seller_address', 'seller_city'];
   const missing = required.filter(k => !data[k]);
   if (missing.length) {
     showAlert('error', 'Please fill in all required fields before generating. Missing: ' + missing.join(', '));
