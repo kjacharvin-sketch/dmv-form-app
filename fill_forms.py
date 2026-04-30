@@ -446,8 +446,8 @@ def fill_all_forms(data):
     "entry_text": {"text": f"{tax_rate * 100:.3f}%", "font_size": 9}
 })
 
-# Section 6 if needed
-if data.get("section6_needed", False):
+    # Section 6 if needed
+    if data.get("section6_needed", False):
     cash = data.get("sale_price", "")
 
     form_fields.append({
