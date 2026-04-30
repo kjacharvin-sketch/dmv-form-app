@@ -829,18 +829,27 @@
       <div class="form-grid">
         <div class="field">
           <label>County Tax Rate</label>
-          <select id="county_rate" onchange="updateTaxRate()">
-            <option value="">— Select county —</option>
-            <option value="0.08875">New York City (8.875%)</option>
-            <option value="0.08875">Nassau (8.875%)</option>
-            <option value="0.08875">Suffolk (8.875%)</option>
-            <option value="0.08625">Westchester (8.625%)</option>
-            <option value="0.08000">Albany (8.0%)</option>
-            <option value="0.08000">Erie / Buffalo (8.0%)</option>
-            <option value="0.08000">Monroe / Rochester (8.0%)</option>
-            <option value="0.08000">Onondaga / Syracuse (8.0%)</option>
-            <option value="0.07500">Other (7.5%)</option>
-          </select>
+          <select id="county" name="county">
+  <option value="">-- Select county --</option>
+
+  <!-- NYC -->
+  <option value="New York">Manhattan (New York County)</option>
+  <option value="Kings">Brooklyn (Kings County)</option>
+  <option value="Queens">Queens</option>
+  <option value="Bronx">Bronx</option>
+  <option value="Richmond">Staten Island (Richmond County)</option>
+
+  <!-- Long Island -->
+  <option value="Nassau">Nassau</option>
+  <option value="Suffolk">Suffolk</option>
+
+  <!-- Optional others -->
+  <option value="Westchester">Westchester</option>
+  <option value="Albany">Albany</option>
+  <option value="Erie">Erie</option>
+  <option value="Monroe">Monroe</option>
+  <option value="Onondaga">Onondaga</option>
+</select>
           <div class="field-hint">Rate includes NYS 4% + MCTD + county surcharges. Verify at tax.ny.gov.</div>
         </div>
         <div class="field">
