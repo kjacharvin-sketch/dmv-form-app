@@ -5,6 +5,13 @@ from fill_forms import fill_all_forms  # make sure this exists
 
 app = Flask(__name__)
 
+@app.route('/download/<filename>')
+def download(filename):
+    return send_file(
+        os.path.join(os.getcwd(), 'outputs', filename),
+        as_attachment=True
+    )
+    
 @app.route('/')
 def index():
     return send_file(os.path.join(os.getcwd(), 'dmv_app.html'))
