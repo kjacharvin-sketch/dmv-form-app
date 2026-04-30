@@ -547,7 +547,7 @@ def fill_all_forms(data):
             f.write("THIS IS A TEST FILE\n")
             f.write(str(data))
 
-        files.append(path)
+        files.append(name)
 
     return files
 
