@@ -1,6 +1,8 @@
 from flask import Flask, send_file, request, jsonify
 import os
 
+from fill_forms import fill_all_forms  # make sure this exists
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -9,14 +11,25 @@ def index():
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    data = request.form.to_dict()
+    try:
+        data = request.form.to_dict()
 
-    print("FORM DATA:", data)  # shows in Render logs
+        print("FORM DATA:", data)
 
-    return jsonify({
-        "success": True,
-        "data": data
-    })
+        # call your PDF generator
+        output_files = fill_all_forms(data)
+
+        return jsonify({
+            "success": True,
+            "files": output_files
+        })
+
+    except Exception as e:
+        print("ERROR:", str(e))
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
