@@ -1084,6 +1084,24 @@ function gatherData() {
 async function generateForms() {
   const data = gatherData();
 
+  const response = await fetch('/generate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+
+  const result = await response.json();
+
+  if (result.success) {
+    result.files.forEach(file => {
+      window.open(`/download/${file}`, '_blank');
+    });
+  } else {
+    alert("Error: " + result.error);
+  }
+}
   // Validation
   const required = ['vehicle_year', 'vehicle_make', 'vehicle_model', 'vin', 'buyer_name', 'buyer_address', 'buyer_city', 'buyer_zip', 'buyer_county', 'seller_name', 'seller_address', 'seller_city'];
   const missing = required.filter(k => !data[k]);
