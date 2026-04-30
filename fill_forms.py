@@ -404,9 +404,42 @@ def fill_dtf802(data, input_pdf, output_pdf):
     })
 
     # Tax rate
-    tax_rate = data.get("tax_rate", "")
-    if tax_rate:
-        form_fields.append({
+    # County → tax rate mapping
+TAX_RATES = {
+    "New York": 0.08875,
+    "Kings": 0.08875,
+    "Queens": 0.08875,
+    "Bronx": 0.08875,
+    "Richmond": 0.08875,
+    "Nassau": 0.08625,
+    "Suffolk": 0.08625,
+    "DEFAULT": 0.08
+}
+
+# Get county
+county = data.get("county", "DEFAULT").strip().title()
+
+# Handle aliases
+aliases = {
+    "Manhattan": "New York",
+    "Brooklyn": "Kings",
+    "Staten Island": "Richmond"
+}
+
+county = aliases.get(county, county)
+
+# Get correct tax rate
+tax_rate = TAX_RATES.get(county, TAX_RATES["DEFAULT"])
+
+# Write to PDF
+form_fields.append({
+    "page_number": 2,
+    "description": "Tax rate",
+    "field_label": "Tax rate",
+    "label_bounding_box": [27, 175, 200, 185],
+    "entry_bounding_box": [453, 175, 520, 186],
+    "entry_text": {"text": f"{tax_rate * 100:.3f}%", "font_size": 9}
+})
             "page_number": 2, "description": "Tax rate",
             "field_label": "Tax rate",
             "label_bounding_box": [27, 175, 200, 185],
