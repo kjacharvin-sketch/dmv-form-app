@@ -1086,10 +1086,7 @@ async function generateForms() {
 
   const response = await fetch('/generate', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
+    body: new URLSearchParams(data)  // ✅ use form-style (like before)
   });
 
   const result = await response.json();
@@ -1099,7 +1096,7 @@ async function generateForms() {
       window.open(`/download/${file}`, '_blank');
     });
   } else {
-    alert("Error: " + result.error);
+    alert("Error: " + (result.error || "Unknown error"));
   }
 }
   // Validation
