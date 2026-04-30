@@ -8,7 +8,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-SKILL_DIR = "/mnt/skills/public/pdf"
+import os
+SKILL_DIR = os.getcwd()
 
 def run_fill_script(input_pdf, fields_json_path, output_pdf):
     cmd = [
