@@ -15,9 +15,11 @@ app = Flask(__name__)
 OUTPUT_DIR = '/mnt/user-data/outputs'
 BASE_DIR = '/home/claude'
 
+import os
+
 @app.route('/')
 def index():
-    return send_file('/home/claude/dmv_app.html')
+    return send_file(os.path.join(os.getcwd(), 'dmv_app.html'))
 
 @app.route('/generate', methods=['POST'])
 def generate():
