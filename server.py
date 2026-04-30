@@ -1,4 +1,4 @@
-from flask import Flask, send_file
+from flask import Flask, send_file, request, jsonify
 import os
 
 app = Flask(__name__)
@@ -9,7 +9,14 @@ def index():
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    return {"status": "working"}
+    data = request.form.to_dict()
+
+    print("FORM DATA:", data)  # shows in Render logs
+
+    return jsonify({
+        "success": True,
+        "data": data
+    })
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
