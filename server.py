@@ -12,7 +12,7 @@ sys.path.insert(0, '/home/claude')
 from fill_forms import fill_all_forms
 
 app = Flask(__name__)
-OUTPUT_DIR = '/mnt/user-data/outputs'
+OUTPUT_DIR = os.path.join(os.getcwd(), 'outputs')
 BASE_DIR = '/home/claude'
 
 import os
