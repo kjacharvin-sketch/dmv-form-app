@@ -1,21 +1,16 @@
 from flask import Flask, send_file, request, jsonify
 import os
 
-from fill_forms import fill_all_forms  # make sure this exists
+from fill_forms import fill_all_forms
 
 app = Flask(__name__)
 
-@app.route('/download/<filename>')
-def download(filename):
-    return send_file(
-        os.path.join(os.getcwd(), 'outputs', filename),
-        as_attachment=True
-    )
-    
+# Home page
 @app.route('/')
 def index():
     return send_file(os.path.join(os.getcwd(), 'dmv_app.html'))
 
+# Generate forms
 @app.route('/generate', methods=['POST'])
 def generate():
     try:
@@ -23,7 +18,6 @@ def generate():
 
         print("FORM DATA:", data)
 
-        # call your PDF generator
         output_files = fill_all_forms(data)
 
         return jsonify({
@@ -37,6 +31,14 @@ def generate():
             "success": False,
             "error": str(e)
         }), 500
+
+# Download files
+@app.route('/download/<filename>')
+def download(filename):
+    return send_file(
+        os.path.join(os.getcwd(), 'outputs', filename),
+        as_attachment=True
+    )
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
