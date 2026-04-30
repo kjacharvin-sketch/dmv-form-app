@@ -437,7 +437,7 @@ def fill_all_forms(data):
     # then your form_fields.append(...) stuff
 
 # Write to PDF
-form_fields.append({
+    form_fields.append({
     "page_number": 2,
     "description": "Tax rate",
     "field_label": "Tax rate",
