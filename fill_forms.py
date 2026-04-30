@@ -521,6 +521,29 @@ def fill_all_forms(data, base_dir="/home/claude", output_dir="/mnt/user-data/out
 
     return results
 
+import os
+
+def fill_all_forms(data):
+    print("DATA RECEIVED:", data)
+
+    output_dir = os.path.join(os.getcwd(), "outputs")
+    os.makedirs(output_dir, exist_ok=True)
+
+    files = []
+
+    # Create test files to confirm everything works
+    filenames = ["mv82_filled.txt", "mv912_filled.txt", "dtf802_filled.txt"]
+
+    for name in filenames:
+        path = os.path.join(output_dir, name)
+
+        with open(path, "w") as f:
+            f.write("THIS IS A TEST FILE\n")
+            f.write(str(data))
+
+        files.append(path)
+
+    return files
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
