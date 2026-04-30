@@ -440,12 +440,6 @@ form_fields.append({
     "entry_bounding_box": [453, 175, 520, 186],
     "entry_text": {"text": f"{tax_rate * 100:.3f}%", "font_size": 9}
 })
-            "page_number": 2, "description": "Tax rate",
-            "field_label": "Tax rate",
-            "label_bounding_box": [27, 175, 200, 185],
-            "entry_bounding_box": [453, 175, 520, 186],
-            "entry_text": {"text": str(tax_rate), "font_size": 9}
-        })
 
     # Section 6 if needed
     if data.get("section6_needed", False):
