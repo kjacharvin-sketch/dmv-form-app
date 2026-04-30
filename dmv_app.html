@@ -919,174 +919,115 @@
 let currentSection = 0;
 const totalSections = 6;
 
+/* ================= NAVIGATION ================= */
 function goTo(n) {
-  document.querySelectorAll('.section-card').forEach((el, i) => {
+  console.log("GO TO:", n);
+
+  const sections = document.querySelectorAll('.section-card');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  if (!sections.length) {
+    console.error("No sections found");
+    return;
+  }
+
+  sections.forEach((el, i) => {
     el.classList.toggle('active', i === n);
   });
-  document.querySelectorAll('.nav-item').forEach((el, i) => {
+
+  navItems.forEach((el, i) => {
     el.classList.toggle('active', i === n);
   });
+
   currentSection = n;
   updateProgress();
+
   if (n === 5) buildReview();
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateProgress() {
+  const fill = document.getElementById('progressFill');
+  if (!fill) return;
+
   const pct = (currentSection / (totalSections - 1)) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
+  fill.style.width = pct + '%';
 }
 
-// Radio group styling
-document.querySelectorAll('.radio-group').forEach(group => {
-  group.querySelectorAll('.radio-option').forEach(opt => {
-    opt.addEventListener('click', () => {
-      const radio = opt.querySelector('input[type=radio]');
-      const name = radio.name;
-      document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
-        r.closest('.radio-option').classList.remove('selected');
-      });
-      radio.checked = true;
-      opt.classList.add('selected');
-      if (name === 'relationship' || name === 'family_tx') updateTaxCalc();
-    });
-  });
-});
-
-function updateTaxRate() {
-  const sel = document.getElementById('county_rate');
-  const rate = sel.value;
-  if (rate) document.getElementById('tax_rate').value = rate;
-  updateTaxCalc();
-}
-
-function updateTaxCalc() {
-  const price = parseFloat(document.getElementById('sale_price').value) || 0;
-  const rate = parseFloat(document.getElementById('tax_rate').value) || 0;
-  const tax = price * rate;
-  const el = document.getElementById('tax_estimate');
-  if (price && rate) {
-    el.textContent = '$' + tax.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  } else {
-    el.textContent = '—';
-  }
-}
-
-document.getElementById('sale_price').addEventListener('input', updateTaxCalc);
-document.getElementById('tax_rate').addEventListener('input', updateTaxCalc);
-
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr + 'T00:00:00');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  const yyyy = d.getFullYear();
-  return `${mm}/${dd}/${yyyy}`;
-}
-
+/* ================= HELPERS ================= */
 function getVal(id) {
   const el = document.getElementById(id);
   return el ? el.value.trim() : '';
 }
+
 function getRadio(name) {
   const el = document.querySelector(`input[name="${name}"]:checked`);
   return el ? el.value : '';
 }
 
-function buildReview() {
-  const txDate = formatDate(getVal('transaction_date_input'));
-  const price = getVal('sale_price');
-  const rate = getVal('tax_rate');
-  const tax = price && rate ? '$' + (parseFloat(price) * parseFloat(rate)).toFixed(2) : '—';
-
-  const sections = [
-    { title: 'Vehicle', rows: [
-      ['Type', getVal('vehicle_type')],
-      ['Year / Make / Model', `${getVal('vehicle_year')} ${getVal('vehicle_make')} ${getVal('vehicle_model')}`],
-      ['VIN', getVal('vin')],
-      ['Color', getVal('vehicle_color')],
-      ['Odometer', getVal('odometer') ? getVal('odometer') + ' mi' : '—'],
-    ]},
-    { title: 'Buyer / New Owner', rows: [
-      ['Name', getVal('buyer_name')],
-      ['SSN / TIN', getVal('buyer_ssn')],
-      ['Address', getVal('buyer_address')],
-      ['City / State / ZIP', `${getVal('buyer_city')}, ${getVal('buyer_state')} ${getVal('buyer_zip')}`],
-      ['County', getVal('buyer_county')],
-    ]},
-    { title: 'Seller / Prev. Owner', rows: [
-      ['Name', getVal('seller_name')],
-      ['Address', getVal('seller_address')],
-      ['City / State / ZIP', `${getVal('seller_city')}, ${getVal('seller_state')} ${getVal('seller_zip')}`],
-    ]},
-    { title: 'Transaction', rows: [
-      ['Date', txDate],
-      ['Sale Price', price ? '$' + parseFloat(price).toLocaleString() : '—'],
-      ['Relationship', getRadio('relationship')],
-      ['Transaction Type', getRadio('txn_type')],
-      ['Tax Rate', rate ? (parseFloat(rate) * 100).toFixed(3) + '%' : '—'],
-      ['Est. Tax Due', tax],
-    ]},
-  ];
-
-  let html = '';
-  sections.forEach(sec => {
-    html += `<div class="review-section"><div class="review-section-title">${sec.title}</div>`;
-    sec.rows.forEach(([k, v]) => {
-      html += `<div class="review-row"><span class="review-key">${k}</span><span class="review-val">${v || '<span style="color:var(--text-placeholder)">—</span>'}</span></div>`;
-    });
-    html += '</div>';
-  });
-  document.getElementById('review-content').innerHTML = html;
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
 }
 
+/* ================= TAX ================= */
+function updateTaxCalc() {
+  const price = parseFloat(getVal('sale_price')) || 0;
+  const rate = parseFloat(getVal('tax_rate')) || 0;
+
+  const el = document.getElementById('tax_estimate');
+  if (!el) return;
+
+  if (price && rate) {
+    const tax = price * rate;
+    el.textContent = '$' + tax.toFixed(2);
+  } else {
+    el.textContent = '—';
+  }
+}
+
+/* ================= REVIEW ================= */
+function buildReview() {
+  const container = document.getElementById('review-content');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div>Vehicle: ${getVal('vehicle_year')} ${getVal('vehicle_make')} ${getVal('vehicle_model')}</div>
+    <div>Buyer: ${getVal('buyer_name')}</div>
+    <div>Seller: ${getVal('seller_name')}</div>
+    <div>Price: $${getVal('sale_price')}</div>
+  `;
+}
+
+/* ================= DATA ================= */
 function gatherData() {
-  const txDate = formatDate(getVal('transaction_date_input'));
   return {
-    vehicle_type: getVal('vehicle_type'),
     vehicle_year: getVal('vehicle_year'),
     vehicle_make: getVal('vehicle_make'),
     vehicle_model: getVal('vehicle_model'),
-    vehicle_color: getVal('vehicle_color'),
     vin: getVal('vin'),
-    odometer: getVal('odometer'),
-    body_type: getVal('body_type'),
-    fuel_type: getVal('fuel_type'),
 
     buyer_name: getVal('buyer_name'),
-    buyer_ssn: getVal('buyer_ssn'),
     buyer_address: getVal('buyer_address'),
     buyer_city: getVal('buyer_city'),
-    buyer_state: getVal('buyer_state') || 'NY',
     buyer_zip: getVal('buyer_zip'),
     buyer_county: getVal('buyer_county'),
-    registrant_license: getVal('registrant_license'),
-    registrant_dob_year: getVal('registrant_dob_year'),
-    registrant_sex: getVal('registrant_sex'),
-    registrant_phone_area: getVal('registrant_phone_area'),
-    registrant_phone: getVal('registrant_phone'),
 
     seller_name: getVal('seller_name'),
     seller_address: getVal('seller_address'),
     seller_city: getVal('seller_city'),
-    seller_state: getVal('seller_state') || 'NY',
-    seller_zip: getVal('seller_zip'),
-    seller_county: getVal('seller_county'),
 
     sale_price: getVal('sale_price'),
-    transaction_date: txDate,
-    relationship: getRadio('relationship') || 'None',
-    transaction_type: getRadio('txn_type') || 'None of the above',
-    family_transaction: getRadio('family_tx') === 'true',
-    section6_needed: getRadio('section6') === 'true',
-    tax_rate: getVal('tax_rate'),
+    tax_rate: getVal('tax_rate')
   };
 }
 
+/* ================= GENERATE ================= */
 async function generateForms() {
   const data = gatherData();
 
-  // ✅ VALIDATION (NOW INSIDE FUNCTION)
   const required = [
     'vehicle_year','vehicle_make','vehicle_model','vin',
     'buyer_name','buyer_address','buyer_city','buyer_zip','buyer_county',
@@ -1096,7 +1037,7 @@ async function generateForms() {
   const missing = required.filter(k => !data[k]);
 
   if (missing.length) {
-    showAlert('error', 'Missing: ' + missing.join(', '));
+    alert("Missing: " + missing.join(', '));
     return;
   }
 
@@ -1113,51 +1054,28 @@ async function generateForms() {
         window.open(`/download/${file}`, '_blank');
       });
     } else {
-      alert("Error: " + (result.error || "Unknown error"));
+      alert(result.error || "Error");
     }
 
   } catch (err) {
-    alert("Error: " + err.message);
+    alert(err.message);
   }
-
-
-function showAlert(type, msg) {
-  const box = document.getElementById('alert-box');
-  box.className = `alert alert-${type} active`;
-  box.textContent = msg;
 }
 
-function showResults(result) {
-  const card = document.getElementById('results-card');
-  const grid = document.getElementById('results-grid');
-  card.classList.add('active');
+/* ================= INIT ================= */
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("CLEAN SCRIPT LOADED");
 
-  const forms = [
-    { key: 'mv912', name: 'MV-912', desc: 'Vehicle Bill of Sale', icon: '📄' },
-    { key: 'mv82', name: 'MV-82', desc: 'Registration/Title Application', icon: '🚗' },
-    { key: 'dtf802', name: 'DTF-802', desc: 'Statement of Transaction (Tax)', icon: '📋' },
-  ];
+  const price = document.getElementById('sale_price');
+  const rate = document.getElementById('tax_rate');
 
-  let html = '';
-  forms.forEach(f => {
-    const r = result[f.key];
-    const ok = r && r.status === 'ok';
-    const filename = ok ? r.path.split('/').pop() : null;
-    html += `<div class="result-item">
-      <div class="result-icon">${f.icon}</div>
-      <div class="result-form-name">${f.name}</div>
-      <div class="result-desc">${f.desc}</div>
-      <div class="result-status ${ok ? 'status-ok' : 'status-error'}">${ok ? '✓ Ready' : '✗ Error'}</div>
-      ${ok ? `<a class="btn btn-download" href="/download/${filename}" download="${filename}">⬇ Download ${f.name}</a>` : `<div style="font-size:11px;color:var(--danger)">${r ? r.error : 'Unknown error'}</div>`}
-    </div>`;
-  });
-  grid.innerHTML = html;
-  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+  if (price) price.addEventListener('input', updateTaxCalc);
+  if (rate) rate.addEventListener('input', updateTaxCalc);
 
-// Set today's date as default
-const today = new Date().toISOString().split('T')[0];
-document.getElementById('transaction_date_input').value = today;
+  const today = new Date().toISOString().split('T')[0];
+  const dateInput = document.getElementById('transaction_date_input');
+  if (dateInput) dateInput.value = today;
+});
 </script>
 </body>
 </html>
