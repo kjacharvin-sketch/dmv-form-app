@@ -1,140 +1,175 @@
-<!-- ONLY showing the FIXED parts so you don’t lose your mind scrolling -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NY DMV Form Filler</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f5f5f5;
+}
+
+.header {
+  background: #003087;
+  color: white;
+  padding: 15px;
+  font-weight: bold;
+}
+
+.main {
+  display: flex;
+}
+
+.sidebar {
+  width: 200px;
+  background: #eee;
+  padding: 10px;
+}
+
+.nav-item {
+  display: block;
+  padding: 8px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.nav-item.active {
+  background: #003087;
+  color: white;
+}
+
+.form-content {
+  flex: 1;
+  padding: 20px;
+}
+
+.section-card {
+  display: none;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.section-card.active {
+  display: block;
+}
+
+.btn {
+  padding: 10px 15px;
+  background: #003087;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">NY DMV Form Filler</div>
+
+<div class="main">
+
+  <div class="sidebar">
+    <div class="nav-item active" onclick="goTo(0)">Vehicle</div>
+    <div class="nav-item" onclick="goTo(1)">Buyer</div>
+    <div class="nav-item" onclick="goTo(2)">Seller</div>
+    <div class="nav-item" onclick="goTo(3)">Transaction</div>
+    <div class="nav-item" onclick="goTo(4)">Tax</div>
+    <div class="nav-item" onclick="goTo(5)">Review</div>
+  </div>
+
+  <div class="form-content">
+
+    <div class="section-card active">
+      <h2>Vehicle Info</h2>
+      <input id="vehicle_year" placeholder="Year"><br><br>
+      <input id="vehicle_make" placeholder="Make"><br><br>
+      <input id="vehicle_model" placeholder="Model"><br><br>
+      <input id="vin" placeholder="VIN"><br><br>
+      <button class="btn" onclick="goTo(1)">Next</button>
+    </div>
+
+    <div class="section-card">
+      <h2>Buyer</h2>
+      <input id="buyer_name" placeholder="Name"><br><br>
+      <input id="buyer_address" placeholder="Address"><br><br>
+      <input id="buyer_city" placeholder="City"><br><br>
+      <input id="buyer_zip" placeholder="ZIP"><br><br>
+      <input id="buyer_county" placeholder="County"><br><br>
+      <button class="btn" onclick="goTo(2)">Next</button>
+    </div>
+
+    <div class="section-card">
+      <h2>Seller</h2>
+      <input id="seller_name" placeholder="Name"><br><br>
+      <input id="seller_address" placeholder="Address"><br><br>
+      <input id="seller_city" placeholder="City"><br><br>
+      <button class="btn" onclick="goTo(3)">Next</button>
+    </div>
+
+    <div class="section-card">
+      <h2>Transaction</h2>
+      <input id="sale_price" placeholder="Price"><br><br>
+      <button class="btn" onclick="goTo(4)">Next</button>
+    </div>
+
+    <div class="section-card">
+      <h2>Tax</h2>
+      <input id="tax_rate" placeholder="Tax Rate"><br><br>
+      <button class="btn" onclick="goTo(5)">Next</button>
+    </div>
+
+    <div class="section-card">
+      <h2>Review & Generate</h2>
+      <button class="btn" onclick="generateForms()">Generate</button>
+    </div>
+
+  </div>
+
+</div>
 
 <script>
 let currentSection = 0;
-const totalSections = 6;
 
 function goTo(n) {
   document.querySelectorAll('.section-card').forEach((el, i) => {
     el.classList.toggle('active', i === n);
   });
+
   document.querySelectorAll('.nav-item').forEach((el, i) => {
     el.classList.toggle('active', i === n);
   });
+
   currentSection = n;
-  updateProgress();
-  if (n === 5) buildReview();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function updateProgress() {
-  const pct = (currentSection / (totalSections - 1)) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
-}
-
-/* ================= HELPERS ================= */
-function getVal(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : '';
-}
-
-function getRadio(name) {
-  const el = document.querySelector(`input[name="${name}"]:checked`);
-  return el ? el.value : '';
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr + 'T00:00:00');
-  return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
-}
-
-/* ================= TAX ================= */
-function updateTaxCalc() {
-  const price = parseFloat(getVal('sale_price')) || 0;
-  const rate = parseFloat(getVal('tax_rate')) || 0;
-  const el = document.getElementById('tax_estimate');
-
-  if (price && rate) {
-    const tax = price * rate;
-    el.textContent = '$' + tax.toFixed(2);
-  } else {
-    el.textContent = '—';
-  }
-}
-
-/* ================= REVIEW ================= */
-function buildReview() {
-  const container = document.getElementById('review-content');
-
-  container.innerHTML = `
-    <div>Vehicle: ${getVal('vehicle_year')} ${getVal('vehicle_make')} ${getVal('vehicle_model')}</div>
-    <div>Buyer: ${getVal('buyer_name')}</div>
-    <div>Seller: ${getVal('seller_name')}</div>
-    <div>Price: $${getVal('sale_price')}</div>
-  `;
-}
-
-/* ================= DATA ================= */
 function gatherData() {
   return {
-    vehicle_year: getVal('vehicle_year'),
-    vehicle_make: getVal('vehicle_make'),
-    vehicle_model: getVal('vehicle_model'),
-    vin: getVal('vin'),
-
-    buyer_name: getVal('buyer_name'),
-    buyer_address: getVal('buyer_address'),
-    buyer_city: getVal('buyer_city'),
-    buyer_zip: getVal('buyer_zip'),
-    buyer_county: getVal('buyer_county'),
-
-    seller_name: getVal('seller_name'),
-    seller_address: getVal('seller_address'),
-    seller_city: getVal('seller_city'),
-
-    sale_price: getVal('sale_price'),
-    tax_rate: getVal('tax_rate')
+    vehicle_year: document.getElementById('vehicle_year').value,
+    vehicle_make: document.getElementById('vehicle_make').value,
+    vehicle_model: document.getElementById('vehicle_model').value,
+    vin: document.getElementById('vin').value,
+    buyer_name: document.getElementById('buyer_name').value,
+    buyer_address: document.getElementById('buyer_address').value,
+    buyer_city: document.getElementById('buyer_city').value,
+    buyer_zip: document.getElementById('buyer_zip').value,
+    buyer_county: document.getElementById('buyer_county').value,
+    seller_name: document.getElementById('seller_name').value,
+    seller_address: document.getElementById('seller_address').value,
+    seller_city: document.getElementById('seller_city').value,
+    sale_price: document.getElementById('sale_price').value,
+    tax_rate: document.getElementById('tax_rate').value
   };
 }
 
-/* ================= ALERT ================= */
-function showAlert(type, msg) {
-  const box = document.getElementById('alert-box');
-  box.className = `alert alert-${type} active`;
-  box.textContent = msg;
-}
-
-/* ================= RESULTS ================= */
-function showResults(result) {
-  const card = document.getElementById('results-card');
-  const grid = document.getElementById('results-grid');
-
-  card.classList.add('active');
-
-  let html = '';
-  result.files.forEach(file => {
-    html += `
-      <div class="result-item">
-        <div class="result-icon">📄</div>
-        <div class="result-form-name">${file}</div>
-        <div class="result-status status-ok">✓ Ready</div>
-        <a class="btn btn-download" href="/download/${file}" target="_blank">
-          Download
-        </a>
-      </div>
-    `;
-  });
-
-  grid.innerHTML = html;
-}
-
-/* ================= GENERATE (FIXED) ================= */
 async function generateForms() {
   const data = gatherData();
-
-  const required = [
-    'vehicle_year','vehicle_make','vehicle_model','vin',
-    'buyer_name','buyer_address','buyer_city','buyer_zip','buyer_county',
-    'seller_name','seller_address','seller_city'
-  ];
-
-  const missing = required.filter(k => !data[k]);
-
-  if (missing.length) {
-    showAlert('error', "Missing: " + missing.join(', '));
-    return;
-  }
 
   try {
     const response = await fetch('/generate', {
@@ -146,26 +181,17 @@ async function generateForms() {
 
     if (result.success) {
       result.files.forEach(file => {
-        window.open(`/download/${file}`, '_blank');
+        window.open('/download/' + file);
       });
     } else {
-      alert(result.error || "Error");
+      alert(result.error);
     }
 
   } catch (err) {
     alert(err.message);
   }
 }
-/* ================= INIT ================= */
-document.addEventListener('DOMContentLoaded', () => {
-  const price = document.getElementById('sale_price');
-  const rate = document.getElementById('tax_rate');
-
-  if (price) price.addEventListener('input', updateTaxCalc);
-  if (rate) rate.addEventListener('input', updateTaxCalc);
-
-  const today = new Date().toISOString().split('T')[0];
-  const dateInput = document.getElementById('transaction_date_input');
-  if (dateInput) dateInput.value = today;
-});
 </script>
+
+</body>
+</html>
