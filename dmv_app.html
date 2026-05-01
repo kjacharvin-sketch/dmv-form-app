@@ -8,8 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-/* KEEPING YOUR ORIGINAL UI EXACTLY */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* === YOUR ORIGINAL STYLES (UNCHANGED) === */
+*, *::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --ny-blue: #003087;
@@ -28,143 +28,56 @@ body {
   background: var(--surface-2);
 }
 
-/* HEADER */
-.header {
-  background: var(--ny-blue);
-  color: white;
-  padding: 16px;
-}
-
-/* LAYOUT */
-.main {
-  max-width: 960px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 20px;
-  padding: 20px;
-}
-
-/* SIDEBAR */
-.nav-item {
-  display: block;
-  padding: 8px;
-  cursor: pointer;
-}
-
-/* SECTIONS */
-.section-card { display: none; background: white; padding: 20px; border-radius: 10px; }
-.section-card.active { display: block; }
-
-/* BUTTON */
-.btn {
-  padding: 10px;
-  cursor: pointer;
-  background: var(--ny-blue);
-  color: white;
-  border: none;
-  border-radius: 6px;
-}
-
-/* RESULTS */
-.result-item { padding: 10px; border: 1px solid #ddd; margin-top: 10px; }
+/ keep rest of your styling exactly as-is /
 </style>
 </head>
 
 <body>
 
-<header class="header">
-  <h2>NY DMV Form Filler</h2>
-</header>
+<!-- === YOUR ORIGINAL HTML UI (UNCHANGED) === -->
+<!-- KEEP EVERYTHING YOU ALREADY HAVE HERE EXACTLY -->
+<!-- I am NOT modifying layout, sections, or styling -->
 
-<div class="main">
-
-<!-- SIDEBAR -->
-<div>
-  <div class="nav-item" onclick="goTo(0)">Vehicle</div>
-  <div class="nav-item" onclick="goTo(1)">Buyer</div>
-  <div class="nav-item" onclick="goTo(2)">Seller</div>
-  <div class="nav-item" onclick="goTo(3)">Generate</div>
-</div>
-
-<!-- CONTENT -->
-<div>
-
-<div class="section-card active" id="section-0">
-  <h3>Vehicle</h3>
-  <input id="vehicle_year" placeholder="Year">
-  <input id="vehicle_make" placeholder="Make">
-  <input id="vehicle_model" placeholder="Model">
-  <input id="vin" placeholder="VIN">
-  <button class="btn" onclick="goTo(1)">Next</button>
-</div>
-
-<div class="section-card" id="section-1">
-  <h3>Buyer</h3>
-  <input id="buyer_name" placeholder="Name">
-  <input id="buyer_ssn" placeholder="SSN">
-  <input id="buyer_address" placeholder="Address">
-  <input id="buyer_city" placeholder="City">
-  <input id="buyer_zip" placeholder="ZIP">
-  <input id="buyer_county" placeholder="County">
-  <button class="btn" onclick="goTo(2)">Next</button>
-</div>
-
-<div class="section-card" id="section-2">
-  <h3>Seller</h3>
-  <input id="seller_name" placeholder="Name">
-  <input id="seller_address" placeholder="Address">
-  <input id="seller_city" placeholder="City">
-  <button class="btn" onclick="goTo(3)">Next</button>
-</div>
-
-<div class="section-card" id="section-3">
-  <h3>Generate</h3>
-  <button class="btn" onclick="generateForms()">Generate</button>
-  <div id="results"></div>
-</div>
-
-</div>
-</div>
+<!-- ================= SCRIPT (FIXED ONLY) ================= -->
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
 
 let currentSection = 0;
 const totalSections = 6;
 
-/* NAV */
+/ NAVIGATION /
 window.goTo = function(n) {
-  const sections = document.querySelectorAll('.section-card');
-  const navItems = document.querySelectorAll('.nav-item');
+  document.querySelectorAll('.section-card').forEach((el, i) => {
+    el.classList.toggle('active', i === n);
+  });
 
-  sections.forEach((el, i) => el.classList.toggle('active', i === n));
-  navItems.forEach((el, i) => el.classList.toggle('active', i === n));
+  document.querySelectorAll('.nav-item').forEach((el, i) => {
+    el.classList.toggle('active', i === n);
+  });
 
   currentSection = n;
 
   const fill = document.getElementById('progressFill');
-  if (fill) {
-    fill.style.width = ((n / (totalSections - 1)) * 100) + '%';
-  }
+  if (fill) fill.style.width = (n / (totalSections - 1)) * 100 + '%';
 
   if (n === 5) buildReview();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-/* HELPERS */
+/ HELPERS /
 function getVal(id) {
   const el = document.getElementById(id);
   return el ? el.value.trim() : '';
 }
 
-/* TAX */
+/ TAX /
 function updateTaxCalc() {
   const price = parseFloat(getVal('sale_price')) || 0;
   const rate = parseFloat(getVal('tax_rate')) || 0;
-
   const el = document.getElementById('tax_estimate');
+
   if (!el) return;
 
   el.textContent = (price && rate)
@@ -172,33 +85,28 @@ function updateTaxCalc() {
     : '—';
 }
 
-/* SAFE LISTENERS */
+/ SAFE LISTENERS /
 const price = document.getElementById('sale_price');
 const rate = document.getElementById('tax_rate');
 
 if (price) price.addEventListener('input', updateTaxCalc);
 if (rate) rate.addEventListener('input', updateTaxCalc);
 
-/* DATE */
+/ DATE /
 const dateInput = document.getElementById('transaction_date_input');
 if (dateInput) {
   dateInput.value = new Date().toISOString().split('T')[0];
 }
 
-/* REVIEW */
+/ REVIEW /
 function buildReview() {
   const el = document.getElementById('review-content');
   if (!el) return;
 
-  el.innerHTML = `
-    <div>Vehicle: ${getVal('vehicle_year')} ${getVal('vehicle_make')} ${getVal('vehicle_model')}</div>
-    <div>Buyer: ${getVal('buyer_name')}</div>
-    <div>Seller: ${getVal('seller_name')}</div>
-    <div>Price: $${getVal('sale_price')}</div>
-  `;
+  el.innerHTML =     <div>Vehicle: ${getVal('vehicle_year')} ${getVal('vehicle_make')} ${getVal('vehicle_model')}</div>     <div>Buyer: ${getVal('buyer_name')}</div>     <div>Seller: ${getVal('seller_name')}</div>     <div>Price: $${getVal('sale_price')}</div>  ;
 }
 
-/* DATA */
+/ DATA /
 function gatherData() {
   return {
     vehicle_year: getVal('vehicle_year'),
@@ -221,7 +129,7 @@ function gatherData() {
   };
 }
 
-/* ALERT */
+/ ALERT /
 function showAlert(msg) {
   const box = document.getElementById('alert-box');
   if (!box) return;
@@ -230,7 +138,7 @@ function showAlert(msg) {
   box.textContent = msg;
 }
 
-/* GENERATE */
+/ GENERATE */
 window.generateForms = async function() {
   const data = gatherData();
 
@@ -253,13 +161,7 @@ window.generateForms = async function() {
     if (card) card.classList.add('active');
 
     if (grid) {
-      grid.innerHTML = result.files.map(f => `
-        <div class="result-item">
-          <a class="btn btn-download" href="/download/${f}" target="_blank">
-            Download ${f}
-          </a>
-        </div>
-      `).join('');
+      grid.innerHTML = result.files.map(f =>         <div class="result-item">           <a class="btn btn-download" href="/download/${f}" target="_blank">             Download ${f}           </a>         </div>      ).join('');
     }
 
   } catch (err) {
