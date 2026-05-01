@@ -14,7 +14,7 @@ def index():
 @app.route('/generate', methods=['POST'])
 def generate():
     try:
-        data = request.form.to_dict()
+        data = request.get_json()  # ✅ FIXED
 
         print("FORM DATA:", data)
 
