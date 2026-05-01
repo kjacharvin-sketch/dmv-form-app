@@ -1,4 +1,3 @@
-<h1>TEST PAGE</h1>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,133 +5,213 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NY DMV Form Filler</title>
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
-/* === YOUR ORIGINAL STYLES (UNCHANGED) === */
-*, *::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --ny-blue: #003087;
-  --ny-gold: #C8A84B;
-  --surface: #FAFAF9;
-  --surface-2: #F0EEE9;
-  --border: #D9D5CC;
-  --text: #1A1917;
-  --text-muted: #6B6862;
-  --radius: 6px;
-  --radius-lg: 10px;
-}
+* { box-sizing: border-box; margin:0; padding:0; }
 
 body {
   font-family: 'DM Sans', sans-serif;
-  background: var(--surface-2);
+  background: #F3F4F6;
+  color: #111;
 }
 
-/ keep rest of your styling exactly as-is /
+/* HEADER /
+.header {
+  background: #0B3A82;
+  color: white;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.header-badges span {
+  background: rgba(255,255,255,0.2);
+  padding: 4px 10px;
+  margin-left: 6px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/ LAYOUT /
+.container {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  max-width: 1100px;
+  margin: 30px auto;
+  gap: 24px;
+}
+
+/ SIDEBAR /
+.sidebar {
+  padding-top: 10px;
+}
+
+.step {
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+.step.active {
+  background: white;
+  color: #0B3A82;
+  font-weight: 600;
+  border: 1px solid #ddd;
+}
+
+/ CARD /
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  border: 1px solid #E5E7EB;
+}
+
+.card h2 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.card small {
+  color: #666;
+}
+
+/ FORM /
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/ BUTTON /
+.btn {
+  background: #0B3A82;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.btn.secondary {
+  background: #eee;
+  color: #333;
+}
+
+/ RESULTS */
+.results {
+  margin-top: 20px;
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- === YOUR ORIGINAL HTML UI (UNCHANGED) === -->
-<!-- KEEP EVERYTHING YOU ALREADY HAVE HERE EXACTLY -->
-<!-- I am NOT modifying layout, sections, or styling -->
+<div class="header">
+  <div class="header-title">New York State DMV — Form Filler</div>
+  <div class="header-badges">
+    <span>DTF-802</span>
+    <span>MV-82</span>
+    <span>MV-912</span>
+  </div>
+</div>
 
-<!-- ================= SCRIPT (FIXED ONLY) ================= -->
+<div class="container">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="step active">Vehicle Info</div>
+  <div class="step">Buyer / New Owner</div>
+  <div class="step">Seller</div>
+  <div class="step">Transaction</div>
+  <div class="step">Tax & Fees</div>
+  <div class="step">Review</div>
+</div>
+
+<!-- MAIN -->
+<div class="card">
+
+<h2>Tax & Fees</h2>
+<small>NYS sales tax rate for the buyer's county of residence.</small>
+
+<div class="row">
+  <select id="county">
+    <option>New York City (8.875%)</option>
+    <option>Nassau (8.875%)</option>
+    <option>Suffolk (8.875%)</option>
+  </select>
+
+  <input id="tax_rate" placeholder="0.08875">
+</div>
+
+<div class="row">
+  <input id="sale_price" placeholder="Sale Price">
+</div>
+
+<button class="btn" onclick="generateForms()">Review & Generate →</button>
+
+<div class="results" id="results"></div>
+
+</div>
+
+</div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-
-try {
-
-let currentSection = 0;
-const totalSections = 6;
-
-/* NAV /
-window.goTo = function(n) {
-  document.querySelectorAll('.section-card').forEach((el, i) => {
-    el.classList.toggle('active', i === n);
-  });
-
-  document.querySelectorAll('.nav-item').forEach((el, i) => {
-    el.classList.toggle('active', i === n);
-  });
-
-  currentSection = n;
-
-  const fill = document.getElementById('progressFill');
-  if (fill) fill.style.width = ((n / (totalSections - 1)) * 100) + '%';
-
-  if (n === 5) buildReview();
-};
-
-/ SAFE VALUE GET /
-function getVal(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : '';
+function getVal(id){
+  return document.getElementById(id)?.value || '';
 }
 
-/ REVIEW /
-function buildReview() {
-  const el = document.getElementById('review-content');
-  if (!el) return;
-
-  el.innerHTML =     <div>Vehicle: ${getVal('vehicle_year')} ${getVal('vehicle_make')} ${getVal('vehicle_model')}</div>     <div>Buyer: ${getVal('buyer_name')}</div>     <div>Seller: ${getVal('seller_name')}</div>  ;
-}
-
-/ DATA /
-function gatherData() {
-  return {
-    vehicle_year: getVal('vehicle_year'),
-    vehicle_make: getVal('vehicle_make'),
-    vehicle_model: getVal('vehicle_model'),
-    vin: getVal('vin'),
-    buyer_name: getVal('buyer_name'),
-    buyer_address: getVal('buyer_address'),
-    buyer_city: getVal('buyer_city'),
-    buyer_zip: getVal('buyer_zip'),
-    buyer_county: getVal('buyer_county'),
-    seller_name: getVal('seller_name'),
-    seller_address: getVal('seller_address'),
-    seller_city: getVal('seller_city')
+async function generateForms(){
+  const data = {
+    county: getVal('county'),
+    tax_rate: getVal('tax_rate'),
+    sale_price: getVal('sale_price')
   };
-}
 
-/ GENERATE */
-window.generateForms = async function() {
   try {
-    const data = gatherData();
-
     const res = await fetch('/generate', {
-      method: 'POST',
+      method:'POST',
       body: new URLSearchParams(data)
     });
 
     const result = await res.json();
 
-    if (!result.success) {
-      alert(result.error || "Error");
+    if(!result.success){
+      alert(result.error);
       return;
     }
 
-    result.files.forEach(f => {
-      window.open('/download/' + f, '_blank');
-    });
+    const box = document.getElementById('results');
 
-  } catch (err) {
-    alert(err.message);
+    box.innerHTML = result.files.map(f =>
+      <div><a href="/download/${f}" target="_blank">${f}</a></div>
+    ).join('');
+
+  } catch(e){
+    alert(e.message);
   }
-};
-
-} catch (err) {
-  console.error("SCRIPT CRASH:", err);
-  document.body.innerHTML = "<h2 style='padding:20px'>Script crashed — check console</h2>";
 }
-
-});
 </script>
 
 </body>
 </html>
-<h1 style="color:red;">IF YOU SEE THIS, HTML IS LOADING</h1>
