@@ -16,25 +16,25 @@ body {
 
 /* HEADER */
 .header {
-  background:#0b3d91;
+  background:#123d8d;
   color:white;
-  padding:16px 24px;
+  padding:18px 28px;
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
 }
 
 .header h2 {
   margin:0;
-  font-size:18px;
+  font-size:16px;
 }
 
 .badges span {
-  background:#1e4fbf;
-  padding:4px 10px;
+  background:#1f4fb3;
+  padding:6px 10px;
   border-radius:6px;
   margin-left:6px;
-  font-size:12px;
+  font-size:11px;
 }
 
 /* LAYOUT */
@@ -58,7 +58,7 @@ body {
 
 .nav-item.active {
   background:white;
-  color:#0b3d91;
+  color:#123d8d;
   font-weight:600;
 }
 
@@ -70,19 +70,33 @@ body {
   box-shadow:0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* BUTTONS */
+/* INPUTS */
+input {
+  display:block;
+  margin-bottom:12px;
+  padding:10px;
+  width:100%;
+  border:1px solid #ccc;
+  border-radius:6px;
+}
+
+/* BUTTON */
 .btn {
-  padding:12px 18px;
+  padding:12px;
   border:none;
   border-radius:6px;
   cursor:pointer;
 }
 
 .btn-primary {
-  background:#0b3d91;
+  background:#123d8d;
   color:white;
   width:100%;
 }
+
+/* SECTIONS */
+.section { display:none; }
+.section.active { display:block; }
 
 /* RESULTS */
 .results {
@@ -99,14 +113,8 @@ body {
   text-align:center;
 }
 
-.error {
-  color:red;
-  font-size:12px;
-}
-
-.success {
-  color:green;
-}
+.error { color:red; font-size:12px; }
+.success { color:green; }
 </style>
 </head>
 
@@ -126,24 +134,68 @@ body {
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="nav-item active" onclick="goTo(0)">Vehicle Info</div>
-  <div class="nav-item" onclick="goTo(1)">Buyer / New Owner</div>
+  <div class="nav-item" onclick="goTo(1)">Buyer</div>
   <div class="nav-item" onclick="goTo(2)">Seller</div>
   <div class="nav-item" onclick="goTo(3)">Transaction</div>
   <div class="nav-item" onclick="goTo(4)">Tax & Fees</div>
-  <div class="nav-item" onclick="goTo(5)">Review & Generate</div>
+  <div class="nav-item" onclick="goTo(5)">Review</div>
 </div>
 
 <!-- CONTENT -->
 <div>
 
-<!-- SECTION -->
+<!-- VEHICLE -->
 <div class="card section active">
+  <h3>Vehicle Info</h3>
+  <input id="vehicle_year" placeholder="Year">
+  <input id="vehicle_make" placeholder="Make">
+  <input id="vehicle_model" placeholder="Model">
+  <input id="vin" placeholder="VIN">
+  <button class="btn-primary" onclick="goTo(1)">Next →</button>
+</div>
+
+<!-- BUYER -->
+<div class="card section">
+  <h3>Buyer</h3>
+  <input id="buyer_name" placeholder="Name">
+  <input id="buyer_address" placeholder="Address">
+  <input id="buyer_city" placeholder="City">
+  <input id="buyer_zip" placeholder="ZIP">
+  <input id="buyer_county" placeholder="County">
+  <button onclick="goTo(0)">Back</button>
+  <button class="btn-primary" onclick="goTo(2)">Next →</button>
+</div>
+
+<!-- SELLER -->
+<div class="card section">
+  <h3>Seller</h3>
+  <input id="seller_name" placeholder="Name">
+  <input id="seller_address" placeholder="Address">
+  <input id="seller_city" placeholder="City">
+  <button onclick="goTo(1)">Back</button>
+  <button class="btn-primary" onclick="goTo(3)">Next →</button>
+</div>
+
+<!-- TRANSACTION -->
+<div class="card section">
+  <h3>Transaction</h3>
+  <input id="sale_price" placeholder="Sale Price">
+  <button onclick="goTo(2)">Back</button>
+  <button class="btn-primary" onclick="goTo(4)">Next →</button>
+</div>
+
+<!-- TAX -->
+<div class="card section">
+  <h3>Tax & Fees</h3>
+  <input id="tax_rate" placeholder="Tax Rate (0.08875)">
+  <button onclick="goTo(3)">Back</button>
+  <button class="btn-primary" onclick="goTo(5)">Next →</button>
+</div>
+
+<!-- REVIEW -->
+<div class="card section">
   <h3>Review & Generate</h3>
-
-  <button class="btn btn-primary" onclick="generateForms()">
-    Generate All 3 Forms ↗
-  </button>
-
+  <button class="btn-primary" onclick="generateForms()">Generate All 3 Forms ↗</button>
   <div class="results" id="results"></div>
 </div>
 
@@ -152,81 +204,72 @@ body {
 
 <script>
 function goTo(n){
+  document.querySelectorAll('.section').forEach((el,i)=>{
+    el.classList.toggle('active', i===n);
+  });
+
   document.querySelectorAll('.nav-item').forEach((el,i)=>{
-    el.classList.toggle('active',i===n);
+    el.classList.toggle('active', i===n);
   });
 }
 
-/* DATA (SAFE) */
 function gatherData(){
   return {
-    vehicle_year: "",
-    vehicle_make: "",
-    vehicle_model: "",
-    vin: "",
-    buyer_name: "",
-    buyer_address: "",
-    buyer_city: "",
-    buyer_zip: "",
-    buyer_county: "",
-    seller_name: "",
-    seller_address: "",
-    seller_city: "",
-    sale_price: "",
-    tax_rate: ""
+    vehicle_year: document.getElementById('vehicle_year').value,
+    vehicle_make: document.getElementById('vehicle_make').value,
+    vehicle_model: document.getElementById('vehicle_model').value,
+    vin: document.getElementById('vin').value,
+    buyer_name: document.getElementById('buyer_name').value,
+    buyer_address: document.getElementById('buyer_address').value,
+    buyer_city: document.getElementById('buyer_city').value,
+    buyer_zip: document.getElementById('buyer_zip').value,
+    buyer_county: document.getElementById('buyer_county').value,
+    seller_name: document.getElementById('seller_name').value,
+    seller_address: document.getElementById('seller_address').value,
+    seller_city: document.getElementById('seller_city').value,
+    sale_price: document.getElementById('sale_price').value,
+    tax_rate: document.getElementById('tax_rate').value
   };
 }
 
-/* SHOW RESULTS */
-function showResults(result){
-  const container = document.getElementById("results");
+function showResults(files){
+  const el = document.getElementById('results');
 
-  container.innerHTML = result.files.map(f => `
+  el.innerHTML = files.map(f => `
     <div class="result-card">
       <h4>${f}</h4>
       <div class="success">✓ Ready</div>
       <a href="/download/${f}" target="_blank">Download</a>
     </div>
-  `).join("");
+  `).join('');
 }
 
-/* SHOW ERROR CARDS */
 function showError(){
-  const container = document.getElementById("results");
+  const el = document.getElementById('results');
 
-  container.innerHTML = `
-    <div class="result-card">
-      <h4>MV-912</h4>
-      <div class="error">✖ Error<br>Unknown error</div>
-    </div>
-    <div class="result-card">
-      <h4>MV-82</h4>
-      <div class="error">✖ Error<br>Unknown error</div>
-    </div>
-    <div class="result-card">
-      <h4>DTF-802</h4>
-      <div class="error">✖ Error<br>Unknown error</div>
-    </div>
+  el.innerHTML = `
+    <div class="result-card"><h4>MV-912</h4><div class="error">Error</div></div>
+    <div class="result-card"><h4>MV-82</h4><div class="error">Error</div></div>
+    <div class="result-card"><h4>DTF-802</h4><div class="error">Error</div></div>
   `;
 }
 
-/* GENERATE */
 async function generateForms(){
   try{
-    const res = await fetch("/generate",{
-      method:"POST",
+    const res = await fetch('/generate',{
+      method:'POST',
       body:new URLSearchParams(gatherData())
     });
 
     const data = await res.json();
 
     if(data.success){
-      showResults(data);
-    }else{
+      showResults(data.files);
+    } else {
       showError();
     }
 
-  }catch(e){
+  }catch{
     showError();
   }
 }
