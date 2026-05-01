@@ -132,30 +132,30 @@ async function generateForms() {
   const missing = required.filter(k => !data[k]);
 
   if (missing.length) {
-    showAlert('error', 'Missing: ' + missing.join(', '));
+    showAlert('error', "Missing: " + missing.join(', '));
     return;
   }
 
   try {
     const response = await fetch('/generate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: new URLSearchParams(data)
     });
 
     const result = await response.json();
 
     if (result.success) {
-      showResults(result);
+      result.files.forEach(file => {
+        window.open(`/download/${file}`, '_blank');
+      });
     } else {
-      showAlert('error', result.error || "Error");
+      alert(result.error || "Error");
     }
 
   } catch (err) {
-    showAlert('error', err.message);
+    alert(err.message);
   }
 }
-
 /* ================= INIT ================= */
 document.addEventListener('DOMContentLoaded', () => {
   const price = document.getElementById('sale_price');
