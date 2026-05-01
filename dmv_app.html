@@ -6,71 +6,28 @@
 <title>NY DMV Form Filler</title>
 
 <style>
-body {
-  font-family: system-ui;
-  margin: 0;
-  background: #f0f2f5;
-}
+  body { font-family: Arial; margin:0; background:#f0f2f5; }
+  .main { max-width:900px; margin:auto; padding:20px; }
 
-.main {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
-}
+  .section-card { display:none; background:white; padding:24px; border-radius:10px; margin-bottom:12px; }
+  .section-card.active { display:block; }
 
-.section-card {
-  display: none;
-  background: white;
-  padding: 24px;
-  border-radius: 10px;
-  margin-bottom: 12px;
-}
+  .nav { display:flex; gap:6px; margin-bottom:15px; }
+  .nav button { flex:1; padding:10px; cursor:pointer; border:none; background:#ddd; }
+  .nav button.active { background:#003087; color:white; }
 
-.section-card.active {
-  display: block;
-}
+  input, select {
+    display:block;
+    width:100%;
+    margin-bottom:10px;
+    padding:8px;
+  }
 
-.nav {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 15px;
-}
+  .btn { padding:10px 16px; cursor:pointer; border:none; }
+  .btn-primary { background:#003087; color:white; }
+  .btn-secondary { background:#ccc; }
 
-.nav button {
-  flex: 1;
-  padding: 10px;
-  cursor: pointer;
-  border: none;
-  background: #ddd;
-}
-
-.nav button.active {
-  background: #003087;
-  color: white;
-}
-
-.btn {
-  padding: 10px 16px;
-  margin-top: 10px;
-  cursor: pointer;
-  border: none;
-}
-
-.btn-primary {
-  background: #003087;
-  color: white;
-}
-
-.btn-secondary {
-  background: #ccc;
-}
-
-input {
-  display: block;
-  margin-bottom: 8px;
-  padding: 8px;
-  width: 100%;
-}
+  #tax_estimate { font-weight:bold; margin-top:10px; }
 </style>
 </head>
 
@@ -87,9 +44,9 @@ input {
   <button onclick="goTo(5)" id="nav5">Review</button>
 </div>
 
-<!-- SECTION 0 -->
+<!-- VEHICLE -->
 <div class="section-card active">
-<h2>Vehicle Info</h2>
+<h2>Vehicle Information</h2>
 <input id="vehicle_year" placeholder="Year">
 <input id="vehicle_make" placeholder="Make">
 <input id="vehicle_model" placeholder="Model">
@@ -97,7 +54,7 @@ input {
 <button class="btn btn-primary" onclick="goTo(1)">Next</button>
 </div>
 
-<!-- SECTION 1 -->
+<!-- BUYER -->
 <div class="section-card">
 <h2>Buyer</h2>
 <input id="buyer_name" placeholder="Name">
@@ -109,7 +66,7 @@ input {
 <button class="btn btn-primary" onclick="goTo(2)">Next</button>
 </div>
 
-<!-- SECTION 2 -->
+<!-- SELLER -->
 <div class="section-card">
 <h2>Seller</h2>
 <input id="seller_name" placeholder="Name">
@@ -119,7 +76,7 @@ input {
 <button class="btn btn-primary" onclick="goTo(3)">Next</button>
 </div>
 
-<!-- SECTION 3 -->
+<!-- TRANSACTION -->
 <div class="section-card">
 <h2>Transaction</h2>
 <input id="sale_price" placeholder="Sale Price">
@@ -127,7 +84,7 @@ input {
 <button class="btn btn-primary" onclick="goTo(4)">Next</button>
 </div>
 
-<!-- SECTION 4 -->
+<!-- TAX -->
 <div class="section-card">
 <h2>Tax</h2>
 <input id="tax_rate" placeholder="Tax Rate">
@@ -136,7 +93,7 @@ input {
 <button class="btn btn-primary" onclick="goTo(5)">Next</button>
 </div>
 
-<!-- SECTION 5 -->
+<!-- REVIEW -->
 <div class="section-card">
 <h2>Generate Forms</h2>
 <button class="btn btn-primary" onclick="generateForms()">Generate PDFs</button>
