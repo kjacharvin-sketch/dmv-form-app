@@ -2,192 +2,222 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NY DMV Form Filler</title>
+
 <style>
-body { font-family: Arial; padding: 20px; }
-.section { display: none; }
-.section.active { display: block; }
-button { margin-top: 10px; padding: 10px; }
+body {
+  font-family: system-ui;
+  margin: 0;
+  background: #f0f2f5;
+}
+
+.main {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.section-card {
+  display: none;
+  background: white;
+  padding: 24px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.section-card.active {
+  display: block;
+}
+
+.nav {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 15px;
+}
+
+.nav button {
+  flex: 1;
+  padding: 10px;
+  cursor: pointer;
+  border: none;
+  background: #ddd;
+}
+
+.nav button.active {
+  background: #003087;
+  color: white;
+}
+
+.btn {
+  padding: 10px 16px;
+  margin-top: 10px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: #003087;
+  color: white;
+}
+
+.btn-secondary {
+  background: #ccc;
+}
+
+input {
+  display: block;
+  margin-bottom: 8px;
+  padding: 8px;
+  width: 100%;
+}
 </style>
 </head>
+
 <body>
 
-<h2>NY DMV Form Filler</h2>
+<div class="main">
+
+<div class="nav">
+  <button onclick="goTo(0)" id="nav0">Vehicle</button>
+  <button onclick="goTo(1)" id="nav1">Buyer</button>
+  <button onclick="goTo(2)" id="nav2">Seller</button>
+  <button onclick="goTo(3)" id="nav3">Transaction</button>
+  <button onclick="goTo(4)" id="nav4">Tax</button>
+  <button onclick="goTo(5)" id="nav5">Review</button>
+</div>
 
 <!-- SECTION 0 -->
-<div class="section active">
-  <h3>Vehicle Info</h3>
-  <input id="vehicle_year" placeholder="Year"><br>
-  <input id="vehicle_make" placeholder="Make"><br>
-  <input id="vehicle_model" placeholder="Model"><br>
-  <input id="vin" placeholder="VIN"><br>
-  <button onclick="goTo(1)">Next</button>
+<div class="section-card active">
+<h2>Vehicle Info</h2>
+<input id="vehicle_year" placeholder="Year">
+<input id="vehicle_make" placeholder="Make">
+<input id="vehicle_model" placeholder="Model">
+<input id="vin" placeholder="VIN">
+<button class="btn btn-primary" onclick="goTo(1)">Next</button>
 </div>
 
 <!-- SECTION 1 -->
-<div class="section">
-  <h3>Buyer</h3>
-  <input id="buyer_name" placeholder="Buyer Name"><br>
-  <input id="buyer_address" placeholder="Address"><br>
-  <input id="buyer_city" placeholder="City"><br>
-  <input id="buyer_zip" placeholder="ZIP"><br>
-  <input id="buyer_county" placeholder="County"><br>
-  <button onclick="goTo(0)">Back</button>
-  <button onclick="goTo(2)">Next</button>
+<div class="section-card">
+<h2>Buyer</h2>
+<input id="buyer_name" placeholder="Name">
+<input id="buyer_address" placeholder="Address">
+<input id="buyer_city" placeholder="City">
+<input id="buyer_zip" placeholder="ZIP">
+<input id="buyer_county" placeholder="County">
+<button class="btn btn-secondary" onclick="goTo(0)">Back</button>
+<button class="btn btn-primary" onclick="goTo(2)">Next</button>
 </div>
 
 <!-- SECTION 2 -->
-<div class="section">
-  <h3>Seller</h3>
-  <input id="seller_name" placeholder="Seller Name"><br>
-  <input id="seller_address" placeholder="Address"><br>
-  <input id="seller_city" placeholder="City"><br>
-  <button onclick="goTo(1)">Back</button>
-  <button onclick="goTo(3)">Next</button>
+<div class="section-card">
+<h2>Seller</h2>
+<input id="seller_name" placeholder="Name">
+<input id="seller_address" placeholder="Address">
+<input id="seller_city" placeholder="City">
+<button class="btn btn-secondary" onclick="goTo(1)">Back</button>
+<button class="btn btn-primary" onclick="goTo(3)">Next</button>
 </div>
 
 <!-- SECTION 3 -->
-<div class="section">
-  <h3>Transaction</h3>
-  <input id="sale_price" type="number" placeholder="Sale Price"><br>
-  <input id="tax_rate" type="number" step="0.0001" placeholder="Tax Rate"><br>
-  <button onclick="goTo(2)">Back</button>
-  <button onclick="goTo(4)">Next</button>
+<div class="section-card">
+<h2>Transaction</h2>
+<input id="sale_price" placeholder="Sale Price">
+<button class="btn btn-secondary" onclick="goTo(2)">Back</button>
+<button class="btn btn-primary" onclick="goTo(4)">Next</button>
 </div>
 
 <!-- SECTION 4 -->
-<div class="section">
-  <h3>Review</h3>
-  <button onclick="goTo(3)">Back</button>
-  <button onclick="generateForms()">Generate PDFs</button>
+<div class="section-card">
+<h2>Tax</h2>
+<input id="tax_rate" placeholder="Tax Rate">
+<div id="tax_estimate"></div>
+<button class="btn btn-secondary" onclick="goTo(3)">Back</button>
+<button class="btn btn-primary" onclick="goTo(5)">Next</button>
+</div>
+
+<!-- SECTION 5 -->
+<div class="section-card">
+<h2>Generate Forms</h2>
+<button class="btn btn-primary" onclick="generateForms()">Generate PDFs</button>
+<button class="btn btn-secondary" onclick="goTo(4)">Back</button>
+</div>
+
 </div>
 
 <script>
-let currentSection = 0;
-const totalSections = 6;
+let current = 0;
 
-/* NAVIGATION */
 function goTo(n) {
   const sections = document.querySelectorAll('.section-card');
-  const navItems = document.querySelectorAll('.nav-item');
+  const nav = document.querySelectorAll('.nav button');
 
-  sections.forEach((el, i) => {
-    el.classList.toggle('active', i === n);
-  });
+  sections.forEach((s,i)=>s.classList.toggle('active',i===n));
+  nav.forEach((b,i)=>b.classList.toggle('active',i===n));
 
-  navItems.forEach((el, i) => {
-    el.classList.toggle('active', i === n);
-  });
-
-  currentSection = n;
-  updateProgress();
-
-  if (n === 5) buildReview();
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  current = n;
 }
 
-function updateProgress() {
-  const fill = document.getElementById('progressFill');
-  if (!fill) return;
-
-  const pct = (currentSection / (totalSections - 1)) * 100;
-  fill.style.width = pct + '%';
+function getVal(id){
+  return document.getElementById(id)?.value || "";
 }
 
-/* HELPERS */
-function getVal(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : '';
-}
-
-function getRadio(name) {
-  const el = document.querySelector(`input[name="${name}"]:checked`);
-  return el ? el.value : '';
-}
-
-/* REVIEW */
-function buildReview() {
-  const container = document.getElementById('review-content');
-  if (!container) return;
-
-  container.innerHTML = `
-    <div>Vehicle: ${getVal('vehicle_year')} ${getVal('vehicle_make')} ${getVal('vehicle_model')}</div>
-    <div>Buyer: ${getVal('buyer_name')}</div>
-    <div>Seller: ${getVal('seller_name')}</div>
-    <div>Price: $${getVal('sale_price')}</div>
-  `;
-}
-
-/* DATA */
-function gatherData() {
+function gatherData(){
   return {
-    vehicle_year: getVal('vehicle_year'),
-    vehicle_make: getVal('vehicle_make'),
-    vehicle_model: getVal('vehicle_model'),
-    vin: getVal('vin'),
+    vehicle_year:getVal('vehicle_year'),
+    vehicle_make:getVal('vehicle_make'),
+    vehicle_model:getVal('vehicle_model'),
+    vin:getVal('vin'),
 
-    buyer_name: getVal('buyer_name'),
-    buyer_address: getVal('buyer_address'),
-    buyer_city: getVal('buyer_city'),
-    buyer_zip: getVal('buyer_zip'),
-    buyer_county: getVal('buyer_county'),
+    buyer_name:getVal('buyer_name'),
+    buyer_address:getVal('buyer_address'),
+    buyer_city:getVal('buyer_city'),
+    buyer_zip:getVal('buyer_zip'),
+    buyer_county:getVal('buyer_county'),
 
-    seller_name: getVal('seller_name'),
-    seller_address: getVal('seller_address'),
-    seller_city: getVal('seller_city'),
+    seller_name:getVal('seller_name'),
+    seller_address:getVal('seller_address'),
+    seller_city:getVal('seller_city'),
 
-    sale_price: getVal('sale_price'),
-    tax_rate: getVal('tax_rate')
-  };
+    sale_price:getVal('sale_price'),
+    tax_rate:getVal('tax_rate')
+  }
 }
 
-/* GENERATE */
-async function generateForms() {
+async function generateForms(){
   const data = gatherData();
 
-  try {
-    const response = await fetch('/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+  try{
+    const res = await fetch('/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
     });
 
-    const result = await response.json();
+    const result = await res.json();
 
-    if (result.success) {
-      result.files.forEach(file => {
-        window.open(`/download/${file}`, '_blank');
+    if(result.success){
+      result.files.forEach(f=>{
+        window.open('/download/'+f);
       });
-    } else {
-      alert(result.error || "Error generating forms");
+    }else{
+      alert(result.error);
     }
 
-  } catch (err) {
-    alert(err.message);
+  }catch(e){
+    alert("Error generating forms");
   }
 }
 
-/* INIT */
-document.addEventListener('DOMContentLoaded', () => {
-  const price = document.getElementById('sale_price');
-  const rate = document.getElementById('tax_rate');
-
-  function updateTax() {
-    const p = parseFloat(getVal('sale_price')) || 0;
-    const r = parseFloat(getVal('tax_rate')) || 0;
-    const el = document.getElementById('tax_estimate');
-    if (!el) return;
-    el.textContent = p && r ? '$' + (p * r).toFixed(2) : '—';
+document.addEventListener('input',()=>{
+  const price=parseFloat(getVal('sale_price'))||0;
+  const rate=parseFloat(getVal('tax_rate'))||0;
+  const el=document.getElementById('tax_estimate');
+  if(el){
+    el.textContent = (price&&rate)?'$'+(price*rate).toFixed(2):'';
   }
-
-  if (price) price.addEventListener('input', updateTax);
-  if (rate) rate.addEventListener('input', updateTax);
-
-  const today = new Date().toISOString().split('T')[0];
-  const dateInput = document.getElementById('transaction_date_input');
-  if (dateInput) dateInput.value = today;
 });
 </script>
+
 </body>
 </html>
