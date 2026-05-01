@@ -63,21 +63,63 @@ button { margin-top: 10px; padding: 10px; }
 </div>
 
 <script>
-let current = 0;
+let currentSection = 0;
+const totalSections = 6;
 
+/* NAVIGATION */
 function goTo(n) {
-  const sections = document.querySelectorAll('.section');
-  sections.forEach((s, i) => {
-    s.classList.toggle('active', i === n);
+  const sections = document.querySelectorAll('.section-card');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  sections.forEach((el, i) => {
+    el.classList.toggle('active', i === n);
   });
-  current = n;
+
+  navItems.forEach((el, i) => {
+    el.classList.toggle('active', i === n);
+  });
+
+  currentSection = n;
+  updateProgress();
+
+  if (n === 5) buildReview();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function updateProgress() {
+  const fill = document.getElementById('progressFill');
+  if (!fill) return;
+
+  const pct = (currentSection / (totalSections - 1)) * 100;
+  fill.style.width = pct + '%';
+}
+
+/* HELPERS */
 function getVal(id) {
   const el = document.getElementById(id);
   return el ? el.value.trim() : '';
 }
 
+function getRadio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+
+/* REVIEW */
+function buildReview() {
+  const container = document.getElementById('review-content');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div>Vehicle: ${getVal('vehicle_year')} ${getVal('vehicle_make')} ${getVal('vehicle_model')}</div>
+    <div>Buyer: ${getVal('buyer_name')}</div>
+    <div>Seller: ${getVal('seller_name')}</div>
+    <div>Price: $${getVal('sale_price')}</div>
+  `;
+}
+
+/* DATA */
 function gatherData() {
   return {
     vehicle_year: getVal('vehicle_year'),
@@ -100,21 +142,18 @@ function gatherData() {
   };
 }
 
+/* GENERATE */
 async function generateForms() {
   const data = gatherData();
-  console.log("SENDING:", data);
 
   try {
     const response = await fetch('/generate', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
 
     const result = await response.json();
-    console.log("RESULT:", result);
 
     if (result.success) {
       result.files.forEach(file => {
@@ -128,7 +167,27 @@ async function generateForms() {
     alert(err.message);
   }
 }
-</script>
 
+/* INIT */
+document.addEventListener('DOMContentLoaded', () => {
+  const price = document.getElementById('sale_price');
+  const rate = document.getElementById('tax_rate');
+
+  function updateTax() {
+    const p = parseFloat(getVal('sale_price')) || 0;
+    const r = parseFloat(getVal('tax_rate')) || 0;
+    const el = document.getElementById('tax_estimate');
+    if (!el) return;
+    el.textContent = p && r ? '$' + (p * r).toFixed(2) : '—';
+  }
+
+  if (price) price.addEventListener('input', updateTax);
+  if (rate) rate.addEventListener('input', updateTax);
+
+  const today = new Date().toISOString().split('T')[0];
+  const dateInput = document.getElementById('transaction_date_input');
+  if (dateInput) dateInput.value = today;
+});
+</script>
 </body>
 </html>
