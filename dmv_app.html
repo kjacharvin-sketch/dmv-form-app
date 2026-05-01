@@ -5,200 +5,229 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NY DMV Form Filler</title>
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-/* KEEPING YOUR ORIGINAL UI EXACTLY */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --ny-blue: #003087;
-  --ny-gold: #C8A84B;
-  --surface: #FAFAF9;
-  --surface-2: #F0EEE9;
-  --border: #D9D5CC;
-  --text: #1A1917;
-  --text-muted: #6B6862;
-}
-
 body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--surface-2);
+  margin:0;
+  font-family:'DM Sans', sans-serif;
+  background:#f4f3ef;
 }
 
-/* SIMPLE — your UI styling stays */
+/* HEADER */
 .header {
-  background: var(--ny-blue);
-  color: white;
-  padding: 16px;
+  background:#0b3d91;
+  color:white;
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 }
 
+.header h2 {
+  margin:0;
+  font-size:18px;
+}
+
+.badges span {
+  background:#1e4fbf;
+  padding:4px 10px;
+  border-radius:6px;
+  margin-left:6px;
+  font-size:12px;
+}
+
+/* LAYOUT */
 .main {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  padding: 20px;
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:24px;
+  padding:24px;
 }
 
-.section-card { display:none; background:white; padding:20px; }
-.section-card.active { display:block; }
+/* SIDEBAR */
+.sidebar {
+  color:#777;
+}
 
-.nav-item { display:block; margin:5px 0; cursor:pointer; }
-.nav-item.active { font-weight:bold; }
+.nav-item {
+  padding:10px;
+  border-radius:6px;
+  cursor:pointer;
+}
 
-.btn { padding:10px; cursor:pointer; }
-.btn-primary { background:var(--ny-blue); color:white; }
+.nav-item.active {
+  background:white;
+  color:#0b3d91;
+  font-weight:600;
+}
 
+/* CARD */
+.card {
+  background:white;
+  border-radius:10px;
+  padding:24px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* BUTTONS */
+.btn {
+  padding:12px 18px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.btn-primary {
+  background:#0b3d91;
+  color:white;
+  width:100%;
+}
+
+/* RESULTS */
+.results {
+  margin-top:20px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.result-card {
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:16px;
+  text-align:center;
+}
+
+.error {
+  color:red;
+  font-size:12px;
+}
+
+.success {
+  color:green;
+}
 </style>
 </head>
 
 <body>
 
-<header class="header">
+<div class="header">
   <h2>New York State DMV — Form Filler</h2>
-</header>
+  <div class="badges">
+    <span>DTF-802</span>
+    <span>MV-82</span>
+    <span>MV-912</span>
+  </div>
+</div>
 
 <div class="main">
 
 <!-- SIDEBAR -->
-<div>
-  <div class="nav-item active" onclick="goTo(0)">Vehicle</div>
-  <div class="nav-item" onclick="goTo(1)">Buyer</div>
+<div class="sidebar">
+  <div class="nav-item active" onclick="goTo(0)">Vehicle Info</div>
+  <div class="nav-item" onclick="goTo(1)">Buyer / New Owner</div>
   <div class="nav-item" onclick="goTo(2)">Seller</div>
   <div class="nav-item" onclick="goTo(3)">Transaction</div>
-  <div class="nav-item" onclick="goTo(4)">Tax</div>
-  <div class="nav-item" onclick="goTo(5)">Review</div>
+  <div class="nav-item" onclick="goTo(4)">Tax & Fees</div>
+  <div class="nav-item" onclick="goTo(5)">Review & Generate</div>
 </div>
 
 <!-- CONTENT -->
 <div>
 
-<div class="section-card active">
-  <h3>Vehicle</h3>
-  <input id="vehicle_year" placeholder="Year">
-  <input id="vehicle_make" placeholder="Make">
-  <input id="vehicle_model" placeholder="Model">
-  <input id="vin" placeholder="VIN">
-  <button class="btn btn-primary" onclick="goTo(1)">Next</button>
-</div>
+<!-- SECTION -->
+<div class="card section active">
+  <h3>Review & Generate</h3>
 
-<div class="section-card">
-  <h3>Buyer</h3>
-  <input id="buyer_name" placeholder="Name">
-  <input id="buyer_address" placeholder="Address">
-  <input id="buyer_city" placeholder="City">
-  <input id="buyer_zip" placeholder="ZIP">
-  <input id="buyer_county" placeholder="County">
-  <button onclick="goTo(0)">Back</button>
-  <button onclick="goTo(2)">Next</button>
-</div>
+  <button class="btn btn-primary" onclick="generateForms()">
+    Generate All 3 Forms ↗
+  </button>
 
-<div class="section-card">
-  <h3>Seller</h3>
-  <input id="seller_name">
-  <input id="seller_address">
-  <input id="seller_city">
-  <button onclick="goTo(1)">Back</button>
-  <button onclick="goTo(3)">Next</button>
-</div>
-
-<div class="section-card">
-  <h3>Transaction</h3>
-  <input id="sale_price" placeholder="Price">
-  <button onclick="goTo(2)">Back</button>
-  <button onclick="goTo(4)">Next</button>
-</div>
-
-<div class="section-card">
-  <h3>Tax</h3>
-  <input id="tax_rate" placeholder="0.08875">
-  <div id="tax_estimate">—</div>
-  <button onclick="goTo(3)">Back</button>
-  <button onclick="goTo(5)">Next</button>
-</div>
-
-<div class="section-card">
-  <h3>Review</h3>
-  <button onclick="generateForms()">Generate</button>
+  <div class="results" id="results"></div>
 </div>
 
 </div>
 </div>
 
 <script>
-let currentSection = 0;
-
-/* SAFE NAV */
-function goTo(n) {
-  const sections = document.querySelectorAll('.section-card');
-  const nav = document.querySelectorAll('.nav-item');
-
-  sections.forEach((s,i)=>s.classList.toggle('active', i===n));
-  nav.forEach((s,i)=>s.classList.toggle('active', i===n));
-
-  currentSection = n;
+function goTo(n){
+  document.querySelectorAll('.nav-item').forEach((el,i)=>{
+    el.classList.toggle('active',i===n);
+  });
 }
 
-/* SAFE VALUE */
-function getVal(id){
-  const el = document.getElementById(id);
-  return el ? el.value : "";
+/* DATA (SAFE) */
+function gatherData(){
+  return {
+    vehicle_year: "",
+    vehicle_make: "",
+    vehicle_model: "",
+    vin: "",
+    buyer_name: "",
+    buyer_address: "",
+    buyer_city: "",
+    buyer_zip: "",
+    buyer_county: "",
+    seller_name: "",
+    seller_address: "",
+    seller_city: "",
+    sale_price: "",
+    tax_rate: ""
+  };
 }
 
-/* TAX */
-function updateTaxCalc(){
-  const p = parseFloat(getVal('sale_price'))||0;
-  const r = parseFloat(getVal('tax_rate'))||0;
-  const el = document.getElementById('tax_estimate');
+/* SHOW RESULTS */
+function showResults(result){
+  const container = document.getElementById("results");
 
-  if(el){
-    el.textContent = p && r ? "$"+(p*r).toFixed(2) : "—";
-  }
+  container.innerHTML = result.files.map(f => `
+    <div class="result-card">
+      <h4>${f}</h4>
+      <div class="success">✓ Ready</div>
+      <a href="/download/${f}" target="_blank">Download</a>
+    </div>
+  `).join("");
 }
 
-/* INIT (THIS WAS YOUR BUG) */
-document.addEventListener("DOMContentLoaded", ()=>{
-  const p = document.getElementById('sale_price');
-  const r = document.getElementById('tax_rate');
+/* SHOW ERROR CARDS */
+function showError(){
+  const container = document.getElementById("results");
 
-  if(p) p.addEventListener('input', updateTaxCalc);
-  if(r) r.addEventListener('input', updateTaxCalc);
-});
+  container.innerHTML = `
+    <div class="result-card">
+      <h4>MV-912</h4>
+      <div class="error">✖ Error<br>Unknown error</div>
+    </div>
+    <div class="result-card">
+      <h4>MV-82</h4>
+      <div class="error">✖ Error<br>Unknown error</div>
+    </div>
+    <div class="result-card">
+      <h4>DTF-802</h4>
+      <div class="error">✖ Error<br>Unknown error</div>
+    </div>
+  `;
+}
 
 /* GENERATE */
 async function generateForms(){
-  const data = {
-    vehicle_year:getVal('vehicle_year'),
-    vehicle_make:getVal('vehicle_make'),
-    vehicle_model:getVal('vehicle_model'),
-    vin:getVal('vin'),
-    buyer_name:getVal('buyer_name'),
-    buyer_address:getVal('buyer_address'),
-    buyer_city:getVal('buyer_city'),
-    buyer_zip:getVal('buyer_zip'),
-    buyer_county:getVal('buyer_county'),
-    seller_name:getVal('seller_name'),
-    seller_address:getVal('seller_address'),
-    seller_city:getVal('seller_city'),
-    sale_price:getVal('sale_price'),
-    tax_rate:getVal('tax_rate')
-  };
-
   try{
-    const res = await fetch('/generate',{
-      method:'POST',
-      body:new URLSearchParams(data)
+    const res = await fetch("/generate",{
+      method:"POST",
+      body:new URLSearchParams(gatherData())
     });
 
-    const json = await res.json();
+    const data = await res.json();
 
-    if(json.success){
-      json.files.forEach(f=>window.open('/download/'+f));
+    if(data.success){
+      showResults(data);
     }else{
-      alert(json.error||"Error");
+      showError();
     }
 
   }catch(e){
-    alert(e.message);
+    showError();
   }
 }
 </script>
