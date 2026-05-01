@@ -1,180 +1,171 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NY DMV Form Filler</title>
-
-<style>
-  body { font-family: Arial; margin:0; background:#f0f2f5; }
-  .main { max-width:900px; margin:auto; padding:20px; }
-
-  .section-card { display:none; background:white; padding:24px; border-radius:10px; margin-bottom:12px; }
-  .section-card.active { display:block; }
-
-  .nav { display:flex; gap:6px; margin-bottom:15px; }
-  .nav button { flex:1; padding:10px; cursor:pointer; border:none; background:#ddd; }
-  .nav button.active { background:#003087; color:white; }
-
-  input, select {
-    display:block;
-    width:100%;
-    margin-bottom:10px;
-    padding:8px;
-  }
-
-  .btn { padding:10px 16px; cursor:pointer; border:none; }
-  .btn-primary { background:#003087; color:white; }
-  .btn-secondary { background:#ccc; }
-
-  #tax_estimate { font-weight:bold; margin-top:10px; }
-</style>
-</head>
-
-<body>
-
-<div class="main">
-
-<div class="nav">
-  <button onclick="goTo(0)" id="nav0">Vehicle</button>
-  <button onclick="goTo(1)" id="nav1">Buyer</button>
-  <button onclick="goTo(2)" id="nav2">Seller</button>
-  <button onclick="goTo(3)" id="nav3">Transaction</button>
-  <button onclick="goTo(4)" id="nav4">Tax</button>
-  <button onclick="goTo(5)" id="nav5">Review</button>
-</div>
-
-<!-- VEHICLE -->
-<div class="section-card active">
-<h2>Vehicle Information</h2>
-<input id="vehicle_year" placeholder="Year">
-<input id="vehicle_make" placeholder="Make">
-<input id="vehicle_model" placeholder="Model">
-<input id="vin" placeholder="VIN">
-<button class="btn btn-primary" onclick="goTo(1)">Next</button>
-</div>
-
-<!-- BUYER -->
-<div class="section-card">
-<h2>Buyer</h2>
-<input id="buyer_name" placeholder="Name">
-<input id="buyer_address" placeholder="Address">
-<input id="buyer_city" placeholder="City">
-<input id="buyer_zip" placeholder="ZIP">
-<input id="buyer_county" placeholder="County">
-<button class="btn btn-secondary" onclick="goTo(0)">Back</button>
-<button class="btn btn-primary" onclick="goTo(2)">Next</button>
-</div>
-
-<!-- SELLER -->
-<div class="section-card">
-<h2>Seller</h2>
-<input id="seller_name" placeholder="Name">
-<input id="seller_address" placeholder="Address">
-<input id="seller_city" placeholder="City">
-<button class="btn btn-secondary" onclick="goTo(1)">Back</button>
-<button class="btn btn-primary" onclick="goTo(3)">Next</button>
-</div>
-
-<!-- TRANSACTION -->
-<div class="section-card">
-<h2>Transaction</h2>
-<input id="sale_price" placeholder="Sale Price">
-<button class="btn btn-secondary" onclick="goTo(2)">Back</button>
-<button class="btn btn-primary" onclick="goTo(4)">Next</button>
-</div>
-
-<!-- TAX -->
-<div class="section-card">
-<h2>Tax</h2>
-<input id="tax_rate" placeholder="Tax Rate">
-<div id="tax_estimate"></div>
-<button class="btn btn-secondary" onclick="goTo(3)">Back</button>
-<button class="btn btn-primary" onclick="goTo(5)">Next</button>
-</div>
-
-<!-- REVIEW -->
-<div class="section-card">
-<h2>Generate Forms</h2>
-<button class="btn btn-primary" onclick="generateForms()">Generate PDFs</button>
-<button class="btn btn-secondary" onclick="goTo(4)">Back</button>
-</div>
-
-</div>
+<!-- ONLY showing the FIXED parts so you don’t lose your mind scrolling -->
 
 <script>
-let current = 0;
+let currentSection = 0;
+const totalSections = 6;
 
 function goTo(n) {
-  const sections = document.querySelectorAll('.section-card');
-  const nav = document.querySelectorAll('.nav button');
-
-  sections.forEach((s,i)=>s.classList.toggle('active',i===n));
-  nav.forEach((b,i)=>b.classList.toggle('active',i===n));
-
-  current = n;
+  document.querySelectorAll('.section-card').forEach((el, i) => {
+    el.classList.toggle('active', i === n);
+  });
+  document.querySelectorAll('.nav-item').forEach((el, i) => {
+    el.classList.toggle('active', i === n);
+  });
+  currentSection = n;
+  updateProgress();
+  if (n === 5) buildReview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function getVal(id){
-  return document.getElementById(id)?.value || "";
+function updateProgress() {
+  const pct = (currentSection / (totalSections - 1)) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
 }
 
-function gatherData(){
-  return {
-    vehicle_year:getVal('vehicle_year'),
-    vehicle_make:getVal('vehicle_make'),
-    vehicle_model:getVal('vehicle_model'),
-    vin:getVal('vin'),
+/* ================= HELPERS ================= */
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
 
-    buyer_name:getVal('buyer_name'),
-    buyer_address:getVal('buyer_address'),
-    buyer_city:getVal('buyer_city'),
-    buyer_zip:getVal('buyer_zip'),
-    buyer_county:getVal('buyer_county'),
+function getRadio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
 
-    seller_name:getVal('seller_name'),
-    seller_address:getVal('seller_address'),
-    seller_city:getVal('seller_city'),
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
+}
 
-    sale_price:getVal('sale_price'),
-    tax_rate:getVal('tax_rate')
+/* ================= TAX ================= */
+function updateTaxCalc() {
+  const price = parseFloat(getVal('sale_price')) || 0;
+  const rate = parseFloat(getVal('tax_rate')) || 0;
+  const el = document.getElementById('tax_estimate');
+
+  if (price && rate) {
+    const tax = price * rate;
+    el.textContent = '$' + tax.toFixed(2);
+  } else {
+    el.textContent = '—';
   }
 }
 
-async function generateForms(){
+/* ================= REVIEW ================= */
+function buildReview() {
+  const container = document.getElementById('review-content');
+
+  container.innerHTML = `
+    <div>Vehicle: ${getVal('vehicle_year')} ${getVal('vehicle_make')} ${getVal('vehicle_model')}</div>
+    <div>Buyer: ${getVal('buyer_name')}</div>
+    <div>Seller: ${getVal('seller_name')}</div>
+    <div>Price: $${getVal('sale_price')}</div>
+  `;
+}
+
+/* ================= DATA ================= */
+function gatherData() {
+  return {
+    vehicle_year: getVal('vehicle_year'),
+    vehicle_make: getVal('vehicle_make'),
+    vehicle_model: getVal('vehicle_model'),
+    vin: getVal('vin'),
+
+    buyer_name: getVal('buyer_name'),
+    buyer_address: getVal('buyer_address'),
+    buyer_city: getVal('buyer_city'),
+    buyer_zip: getVal('buyer_zip'),
+    buyer_county: getVal('buyer_county'),
+
+    seller_name: getVal('seller_name'),
+    seller_address: getVal('seller_address'),
+    seller_city: getVal('seller_city'),
+
+    sale_price: getVal('sale_price'),
+    tax_rate: getVal('tax_rate')
+  };
+}
+
+/* ================= ALERT ================= */
+function showAlert(type, msg) {
+  const box = document.getElementById('alert-box');
+  box.className = `alert alert-${type} active`;
+  box.textContent = msg;
+}
+
+/* ================= RESULTS ================= */
+function showResults(result) {
+  const card = document.getElementById('results-card');
+  const grid = document.getElementById('results-grid');
+
+  card.classList.add('active');
+
+  let html = '';
+  result.files.forEach(file => {
+    html += `
+      <div class="result-item">
+        <div class="result-icon">📄</div>
+        <div class="result-form-name">${file}</div>
+        <div class="result-status status-ok">✓ Ready</div>
+        <a class="btn btn-download" href="/download/${file}" target="_blank">
+          Download
+        </a>
+      </div>
+    `;
+  });
+
+  grid.innerHTML = html;
+}
+
+/* ================= GENERATE (FIXED) ================= */
+async function generateForms() {
   const data = gatherData();
 
-  try{
-    const res = await fetch('/generate',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(data)
+  const required = [
+    'vehicle_year','vehicle_make','vehicle_model','vin',
+    'buyer_name','buyer_address','buyer_city','buyer_zip','buyer_county',
+    'seller_name','seller_address','seller_city'
+  ];
+
+  const missing = required.filter(k => !data[k]);
+
+  if (missing.length) {
+    showAlert('error', 'Missing: ' + missing.join(', '));
+    return;
+  }
+
+  try {
+    const response = await fetch('/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
     });
 
-    const result = await res.json();
+    const result = await response.json();
 
-    if(result.success){
-      result.files.forEach(f=>{
-        window.open('/download/'+f);
-      });
-    }else{
-      alert(result.error);
+    if (result.success) {
+      showResults(result);
+    } else {
+      showAlert('error', result.error || "Error");
     }
 
-  }catch(e){
-    alert("Error generating forms");
+  } catch (err) {
+    showAlert('error', err.message);
   }
 }
 
-document.addEventListener('input',()=>{
-  const price=parseFloat(getVal('sale_price'))||0;
-  const rate=parseFloat(getVal('tax_rate'))||0;
-  const el=document.getElementById('tax_estimate');
-  if(el){
-    el.textContent = (price&&rate)?'$'+(price*rate).toFixed(2):'';
-  }
+/* ================= INIT ================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const price = document.getElementById('sale_price');
+  const rate = document.getElementById('tax_rate');
+
+  if (price) price.addEventListener('input', updateTaxCalc);
+  if (rate) rate.addEventListener('input', updateTaxCalc);
+
+  const today = new Date().toISOString().split('T')[0];
+  const dateInput = document.getElementById('transaction_date_input');
+  if (dateInput) dateInput.value = today;
 });
 </script>
-
-</body>
-</html>
